@@ -52,23 +52,23 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
+  <a href="../index.html">Home</a>
 </li>
 <li>
   <a href="../articles/ampvis2.html">Get Started</a>
 </li>
 <li>
-  <a href="../reference/index.html">Reference</a>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../articles/faq.html">FAQ</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/MadsAlbertsen/ampvis2">
-    <span class="fa fa-github"></span>
+    <span class="fa fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -87,7 +87,7 @@
     </div>
 
     
-    <p>Subsets the data in ampvis2 objects based on taxonomy and returns the subsetted object. See examples.</p>
+    <p>Subsets the data in ampvis2 objects based on taxonomy and returns the subsetted object.</p>
     
 
     <pre class="usage"><span class='fu'>amp_subset_taxa</span>(<span class='no'>data</span>, <span class='no'>tax_vector</span>)</pre>
@@ -97,23 +97,91 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>data</th>
-      <td><p>(<em>required</em>) Data list as loaded with <code><a href='amp_load.html'>amp_load()</a></code>.</p></td>
+      <td><p>(<em>required</em>) Data list as loaded with <code><a href='amp_load.html'>amp_load</a></code>.</p></td>
     </tr>
     <tr>
       <th>tax_vector</th>
-      <td><p>(required) A vector with taxonomic groups, e.g. <code>c("p__Chloroflexi","p__Actinobacteria")</code>.</p></td>
+      <td><p>(required) A vector with the taxonomic groups with which to perform the subset. The prefixes <code>"k__"</code>, <code>"p__"</code>, <code>"c__"</code>, <code>"o__"</code>, <code>"f__"</code>, <code>"g__"</code>, <code>"s__"</code> indicates their taxonomic rank and the following characters their name (almost always with a capital first letter), e.g. <code>c("p__Chloroflexi","p__Actinobacteria")</code>.</p></td>
     </tr>
     <tr>
       <th>normalise</th>
       <td><p>(<em>logical</em>) Normalise the read abundances to the total amount of reads (percentages) <em>BEFORE</em> the subset. (<em>default:</em> <code>FALSE</code>)</p></td>
     </tr>
+    <tr>
+      <th>remove</th>
+      <td><p>(<em>logical</em>) If set to TRUE, then the taxa matching the provided vector will be removed instead of being the only ones kept in the data. (<em>default:</em> <code>FALSE</code>)</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list with 3 dataframes (4 if reference sequences are provided).</p>
+    <p>A modifed ampvis2 object</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The taxonomy subset is done by providing a <code>tax_vector</code> of taxa names which are then matched to the taxonomy table, where all other taxa not matching the <code>tax_vector</code> are removed. If <code>remove = TRUE</code>, then the matching taxa are the ones being removed instead. The taxa names in <code>tax_vector</code> will be matched in all columns of the taxonomy table.</p>
+    
+    <h2 class="hasAnchor" id="normalising-data-for-use-in-heatmaps"><a class="anchor" href="#normalising-data-for-use-in-heatmaps"></a>Normalising data for use in heatmaps</h2>
+
+    
+    <p>By default the raw read counts in the abundance matrix are normalised (transformed to percentages) by <code><a href='amp_heatmap.html'>amp_heatmap</a></code> automatically. This means that the relative abundances shown will be calculated based on the remaining taxa after the subset, not including the removed taxa, if any. To circumvent this, set <code>normalise = TRUE</code> when subsetting with the <code>amp_subset_taxa</code> and <code><a href='amp_subset_samples.html'>amp_subset_samples</a></code> functions and then set <code>raw = TRUE</code> when using <code><a href='amp_heatmap.html'>amp_heatmap</a></code>, see the example below.</p><pre>
+data("AalborgWWTPs")
+subsettedData &lt;- amp_subset_taxa(AalborgWWTPs,
+                                 tax_vector = c("p__Chloroflexi", "p__Actinobacteria"),
+                                 normalise = TRUE
+                                 )
+amp_heatmap(subsettedData,
+            group_by = "Plant",
+            tax_aggregate = "Phylum",
+            tax_add = "Genus",
+            raw = TRUE
+            )
+</pre>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <p><code><a href='amp_subset_samples.html'>amp_subset_samples</a></code>, <code><a href='amp_heatmap.html'>amp_heatmap</a></code></p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'>#Load example data</span>
+<span class='fu'>data</span>(<span class='st'>"AalborgWWTPs"</span>)
+
+<span class='co'>#An overview heatmap of the data:</span>
+<span class='fu'><a href='amp_heatmap.html'>amp_heatmap</a></span>(<span class='no'>AalborgWWTPs</span>,
+            <span class='kw'>tax_aggregate</span> <span class='kw'>=</span> <span class='st'>"Genus"</span>,
+            <span class='kw'>group_by</span> <span class='kw'>=</span> <span class='st'>"Plant"</span>,
+            <span class='kw'>tax_add</span> <span class='kw'>=</span> <span class='st'>"Phylum"</span>
+            )</div><div class='img'><img src='amp_subset_taxa-4.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+<span class='co'>#Remove all taxa except the phyla Chloroflexi and Actinobacteria </span>
+<span class='co'>#and the Genera Rhodoferax and Trichococcus:</span>
+<span class='no'>tax_vector</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"p__Chloroflexi"</span>,
+            <span class='st'>"p__Actinobacteria"</span>,
+            <span class='st'>"g__Rhodoferax"</span>,
+            <span class='st'>"g__Trichococcus"</span>)
+
+<span class='no'>AalborgWWTPs_subset</span> <span class='kw'>&lt;-</span> <span class='fu'>amp_subset_taxa</span>(<span class='no'>AalborgWWTPs</span>,
+                                       <span class='kw'>tax_vector</span> <span class='kw'>=</span> <span class='no'>tax_vector</span>
+                                       )
+
+<span class='co'>#The resulting subset:</span>
+<span class='fu'><a href='amp_heatmap.html'>amp_heatmap</a></span>(<span class='no'>AalborgWWTPs_subset</span>,
+            <span class='kw'>tax_aggregate</span> <span class='kw'>=</span> <span class='st'>"Genus"</span>,
+            <span class='kw'>group_by</span> <span class='kw'>=</span> <span class='st'>"Plant"</span>,
+            <span class='kw'>tax_add</span> <span class='kw'>=</span> <span class='st'>"Phylum"</span>
+            )</div><div class='img'><img src='amp_subset_taxa-5.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+<span class='co'>#Or if remove = TRUE then the taxa in tax_vector are the ones being removed:</span>
+<span class='no'>AalborgWWTPs_subset</span> <span class='kw'>&lt;-</span> <span class='fu'>amp_subset_taxa</span>(<span class='no'>AalborgWWTPs</span>,
+                                       <span class='kw'>tax_vector</span> <span class='kw'>=</span> <span class='no'>tax_vector</span>,
+                                       <span class='kw'>remove</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+                                       )
+<span class='co'>#The resulting subset:</span>
+<span class='fu'><a href='amp_heatmap.html'>amp_heatmap</a></span>(<span class='no'>AalborgWWTPs_subset</span>,
+            <span class='kw'>tax_aggregate</span> <span class='kw'>=</span> <span class='st'>"Genus"</span>,
+            <span class='kw'>group_by</span> <span class='kw'>=</span> <span class='st'>"Plant"</span>,
+            <span class='kw'>tax_add</span> <span class='kw'>=</span> <span class='st'>"Phylum"</span>
+            )</div><div class='img'><img src='amp_subset_taxa-6.png' alt='' width='700' height='432.632880098887' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -121,7 +189,15 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-          </ul>
+
+      <li><a href="#details">Details</a></li>
+
+      <li><a href="#normalising-data-for-use-in-heatmaps">Normalising data for use in heatmaps</a></li>
+
+      <li><a href="#see-also">See also</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
     <h2>Author</h2>
     

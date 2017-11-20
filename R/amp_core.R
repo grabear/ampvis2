@@ -4,7 +4,7 @@
 #'
 #' @usage amp_core(data)
 #'
-#' @param data (\emph{required}) Data list as loaded with \code{amp_load()}.
+#' @param data (\emph{required}) Data list as loaded with \code{\link{amp_load}}.
 #' @param group_by Group the samples by a variable in the metadata. (\emph{default:} \code{"Sample"})
 #' @param tax_aggregate The taxonomic level to aggregate the OTUs. (\emph{default:} \code{"OTU"})
 #' @param tax_empty How to show OTUs without taxonomic information. One of the following:
@@ -37,7 +37,7 @@
 #' #Core plot
 #' amp_core(AalborgWWTPs)
 #' 
-#' @author Kasper Skytte Andersen \email{kasperskytteandersen@gmail.com}
+#' @author Kasper Skytte Andersen \email{kasperskytteandersen@@gmail.com}
 #' @author Mads Albertsen \email{MadsAlbertsen85@@gmail.com}
 
 amp_core <- function(data, 

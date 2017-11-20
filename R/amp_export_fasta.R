@@ -4,7 +4,7 @@
 #'
 #' @usage amp_export_fasta(data)
 #'
-#' @param data (\emph{required}) Data list as loaded with \code{amp_load()}.
+#' @param data (\emph{required}) Data list as loaded with \code{\link{amp_load}}.
 #' @param filename File name of the exported FASTA file. (\emph{default:} \code{"exported_sequences.fa"})
 #' @param tax (\emph{logical}) Add taxonomic strings to the output or not. (\emph{default:} \code{TRUE})
 #' 
@@ -21,7 +21,7 @@
 #' amp_export_fasta(AalborgWWTPs)
 #' }
 #' 
-#' @author Kasper Skytte Andersen \email{kasperskytteandersen@gmail.com}
+#' @author Kasper Skytte Andersen \email{kasperskytteandersen@@gmail.com}
 #' @author Mads Albertsen \email{MadsAlbertsen85@@gmail.com}
 
 amp_export_fasta <- function(data, 

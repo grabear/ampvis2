@@ -52,23 +52,23 @@
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="..//index.html">
-    <span class="fa fa-home fa-lg"></span>
-     
-  </a>
+  <a href="../index.html">Home</a>
 </li>
 <li>
   <a href="../articles/ampvis2.html">Get Started</a>
 </li>
 <li>
-  <a href="../reference/index.html">Reference</a>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
+  <a href="../articles/faq.html">FAQ</a>
 </li>
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/MadsAlbertsen/ampvis2">
-    <span class="fa fa-github"></span>
+    <span class="fa fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -97,7 +97,7 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>data</th>
-      <td><p>(<em>required</em>) Data list as loaded with <code><a href='amp_load.html'>amp_load()</a></code>.</p></td>
+      <td><p>(<em>required</em>) Data list as loaded with <code><a href='amp_load.html'>amp_load</a></code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -105,21 +105,46 @@
     </tr>
     <tr>
       <th>minreads</th>
-      <td><p>Minimum number of reads pr. sample. (<em>default:</em> <code>1</code>)</p></td>
+      <td><p>Minimum number of reads pr. sample. Samples below this value will be removed. (<em>default:</em> <code>0</code>)</p></td>
     </tr>
     <tr>
       <th>normalise</th>
       <td><p>(<em>logical</em>) Normalise the read abundances to the total amount of reads (percentages) <em>BEFORE</em> the subset. (<em>default:</em> <code>FALSE</code>)</p></td>
     </tr>
+    <tr>
+      <th>removeAbsents</th>
+      <td><p>(<em>logical</em>) Whether to remove OTU's that may have 0 read abundance in all samples after the subset. (<em>default:</em> <code>TRUE</code>)</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A list with 3 dataframes (4 if reference sequences are provided).</p>
+    <p>A modifed ampvis2 object</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>The subset is performed on the metadata by <code>subset()</code> and the abundance- and taxonomy tables are then adjusted accordingly.</p>
+    
+    <h2 class="hasAnchor" id="normalising-data-for-use-in-heatmaps"><a class="anchor" href="#normalising-data-for-use-in-heatmaps"></a>Normalising data for use in heatmaps</h2>
+
+    
+    <p>By default the raw read counts in the abundance matrix are normalised (transformed to percentages) by <code><a href='amp_heatmap.html'>amp_heatmap</a></code> automatically. This means that the relative abundances shown will be calculated based on the remaining taxa after the subset, not including the removed taxa, if any. To circumvent this, set <code>normalise = TRUE</code> when subsetting with the <code><a href='amp_subset_taxa.html'>amp_subset_taxa</a></code> and <code>amp_subset_samples</code> functions and then set <code>raw = TRUE</code> when using <code><a href='amp_heatmap.html'>amp_heatmap</a></code>, see the example below.</p><pre>
+data("MiDAS")
+subsettedData &lt;- amp_subset_samples(MiDAS,
+                                    Plant %in% c("Aalborg West", "Aalborg East"),
+                                    normalise = TRUE
+                                    )
+amp_heatmap(subsettedData,
+            group_by = "Plant",
+            tax_aggregate = "Phylum",
+            tax_add = "Genus",
+            raw = TRUE
+            )
+</pre>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <p><code><a href='amp_subset_taxa.html'>amp_subset_taxa</a></code>, <code><a href='amp_heatmap.html'>amp_heatmap</a></code></p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -127,64 +152,64 @@
 <span class='fu'>data</span>(<span class='st'>"MiDAS"</span>)
 
 <span class='co'>#Show a short summary about the data by simply typing the name of the object in the console</span>
-<span class='no'>MiDAS</span></div><div class='output co'>#&gt; ampvis2 object with 4 elements.
+<span class='no'>MiDAS</span></div><div class='output co'>#&gt; ampvis2 object with 5 elements.
 #&gt; Summary of OTU table:
 #&gt;      Samples         OTUs  Total#Reads    Min#Reads    Max#Reads Median#Reads 
-#&gt;          573        14791     18398563        13306        46071        31758 
+#&gt;          658        14969     20890850        10480        46264        31800 
 #&gt;    Avg#Reads 
-#&gt;     32109.18 
+#&gt;     31749.01 
 #&gt; 
 #&gt; Assigned taxonomy:
 #&gt;       Kingdom        Phylum         Class         Order        Family 
-#&gt;   14791(100%) 14283(96.57%) 12507(84.56%) 11184(75.61%)  9685(65.48%) 
+#&gt;   14969(100%) 14477(96.71%) 12737(85.09%) 11470(76.63%)  9841(65.74%) 
 #&gt;         Genus       Species 
-#&gt;  7105(48.04%)     27(0.18%) 
+#&gt;   7380(49.3%)     28(0.19%) 
 #&gt; 
-#&gt; Metadata variables: 10 
-#&gt;  SampleID, Plant, Year, Period, Date, DeltaDays, LIB_ID, Latitude, Longitude, RawData</div><div class='input'>
+#&gt; Metadata variables: 5 
+#&gt;  SampleID, Plant, Date, Year, Period</div><div class='input'>
 <span class='co'>#Keep only samples containing Aalborg West or East in the Plant column</span>
-<span class='no'>MiDASsubset</span> <span class='kw'>&lt;-</span> <span class='fu'>amp_subset_samples</span>(<span class='no'>MiDAS</span>, <span class='no'>Plant</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"Aalborg West"</span>, <span class='st'>"Aalborg East"</span>))</div><div class='output co'>#&gt; 522 samples and 6569 OTUs have been filtered 
-#&gt; Before: 573 samples and 14791 OTUs
-#&gt; After: 51 samples and 8222 OTUs</div><div class='input'>
+<span class='no'>MiDASsubset</span> <span class='kw'>&lt;-</span> <span class='fu'>amp_subset_samples</span>(<span class='no'>MiDAS</span>, <span class='no'>Plant</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"Aalborg West"</span>, <span class='st'>"Aalborg East"</span>))</div><div class='output co'>#&gt; <span class='message'>590 samples and 5512 OTUs have been filtered </span>
+#&gt; <span class='message'>Before: 658 samples and 14969 OTUs</span>
+#&gt; <span class='message'>After: 68 samples and 9457 OTUs</span></div><div class='input'>
 <span class='co'>#Summary</span>
-<span class='no'>MiDASsubset</span></div><div class='output co'>#&gt; ampvis2 object with 4 elements.
+<span class='no'>MiDASsubset</span></div><div class='output co'>#&gt; ampvis2 object with 5 elements.
 #&gt; Summary of OTU table:
 #&gt;      Samples         OTUs  Total#Reads    Min#Reads    Max#Reads Median#Reads 
-#&gt;           51         8222      1498273        16751        38496        29230 
+#&gt;           68         9457      2072678        17772        44326      30962.5 
 #&gt;    Avg#Reads 
-#&gt;      29377.9 
+#&gt;     30480.56 
 #&gt; 
 #&gt; Assigned taxonomy:
 #&gt;      Kingdom       Phylum        Class        Order       Family        Genus 
-#&gt;   8222(100%) 8037(97.75%) 7191(87.46%) 6597(80.24%) 5897(71.72%) 4532(55.12%) 
+#&gt;   9457(100%) 9240(97.71%) 8305(87.82%) 7665(81.05%) 6767(71.56%) 5244(55.45%) 
 #&gt;      Species 
-#&gt;    17(0.21%) 
+#&gt;    23(0.24%) 
 #&gt; 
-#&gt; Metadata variables: 10 
-#&gt;  SampleID, Plant, Year, Period, Date, DeltaDays, LIB_ID, Latitude, Longitude, RawData</div><div class='input'>
+#&gt; Metadata variables: 5 
+#&gt;  SampleID, Plant, Date, Year, Period</div><div class='input'>
 <span class='co'>#Keep only samples containing Aalborg West or East in the Plant column </span>
 <span class='co'>#and remove the sample "16SAMP-749". Remove any sample(s) with less than 20000 total reads</span>
 <span class='no'>MiDASsubset2</span> <span class='kw'>&lt;-</span> <span class='fu'>amp_subset_samples</span>(<span class='no'>MiDAS</span>,
     <span class='no'>Plant</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"Aalborg West"</span>, <span class='st'>"Aalborg East"</span>) <span class='kw'>&amp;</span> !<span class='no'>SampleID</span> <span class='kw'>%in%</span> <span class='fu'>c</span>(<span class='st'>"16SAMP-749"</span>),
-    <span class='kw'>minreads</span> <span class='kw'>=</span> <span class='fl'>20000</span>)</div><div class='output co'>#&gt; 525 samples and 6602 OTUs have been filtered 
-#&gt; Before: 573 samples and 14791 OTUs
-#&gt; After: 48 samples and 8189 OTUs</div><div class='input'>
+    <span class='kw'>minreads</span> <span class='kw'>=</span> <span class='fl'>20000</span>)</div><div class='output co'>#&gt; <span class='message'>594 samples and 5601 OTUs have been filtered </span>
+#&gt; <span class='message'>Before: 658 samples and 14969 OTUs</span>
+#&gt; <span class='message'>After: 64 samples and 9368 OTUs</span></div><div class='input'>
 <span class='co'>#Summary</span>
-<span class='no'>MiDASsubset2</span></div><div class='output co'>#&gt; ampvis2 object with 4 elements.
+<span class='no'>MiDASsubset2</span></div><div class='output co'>#&gt; ampvis2 object with 5 elements.
 #&gt; Summary of OTU table:
 #&gt;      Samples         OTUs  Total#Reads    Min#Reads    Max#Reads Median#Reads 
-#&gt;           48         8189      1437013        20994        38496      29538.5 
+#&gt;           64         9368      1987574        21472        44326      31413.5 
 #&gt;    Avg#Reads 
-#&gt;     29937.77 
+#&gt;     31055.84 
 #&gt; 
 #&gt; Assigned taxonomy:
 #&gt;      Kingdom       Phylum        Class        Order       Family        Genus 
-#&gt;   8189(100%) 8005(97.75%) 7163(87.47%) 6573(80.27%) 5875(71.74%) 4516(55.15%) 
+#&gt;   9368(100%) 9154(97.72%) 8222(87.77%) 7589(81.01%) 6699(71.51%) 5194(55.44%) 
 #&gt;      Species 
-#&gt;    17(0.21%) 
+#&gt;    23(0.25%) 
 #&gt; 
-#&gt; Metadata variables: 10 
-#&gt;  SampleID, Plant, Year, Period, Date, DeltaDays, LIB_ID, Latitude, Longitude, RawData</div><div class='input'>
+#&gt; Metadata variables: 5 
+#&gt;  SampleID, Plant, Date, Year, Period</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -195,6 +220,10 @@
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#normalising-data-for-use-in-heatmaps">Normalising data for use in heatmaps</a></li>
+
+      <li><a href="#see-also">See also</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>

@@ -4,7 +4,7 @@
 #'
 #' @usage amp_boxplot(data)
 #'
-#' @param data (\emph{required}) Data list as loaded with \code{amp_load()}.
+#' @param data (\emph{required}) Data list as loaded with \code{\link{amp_load}}.
 #' @param group_by Group the samples by a variable in the metadata.
 #' @param order_group A vector to order the groups by.
 #' @param order_y A vector to order the y-axis by.
@@ -44,7 +44,7 @@
 #'             tax_show = 10,
 #'             tax_add = "Phylum")
 #' 
-#' @author Kasper Skytte Andersen \email{kasperskytteandersen@gmail.com}
+#' @author Kasper Skytte Andersen \email{kasperskytteandersen@@gmail.com}
 #' @author Mads Albertsen \email{MadsAlbertsen85@@gmail.com}
 
 amp_boxplot <- function(data, 

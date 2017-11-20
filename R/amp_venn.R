@@ -4,7 +4,7 @@
 #'
 #' @usage amp_venn(data)
 #'
-#' @param data (\emph{required}) Data list as loaded with \code{amp_load()}.
+#' @param data (\emph{required}) Data list as loaded with \code{\link{amp_load}}.
 #' @param group_by Group the data based on a sample variable.
 #' @param cut_a Abundance cutoff in percent. (\emph{default:} \code{0.1})
 #' @param cut_f Frequency cutoff in percent. (\emph{default:} \code{80})
@@ -25,7 +25,7 @@
 #' #Venn diagram grouped by WWTP
 #' amp_venn(AalborgWWTPs, group_by = "Plant")
 #' 
-#' @author Kasper Skytte Andersen \email{kasperskytteandersen@gmail.com}
+#' @author Kasper Skytte Andersen \email{kasperskytteandersen@@gmail.com}
 #' @author Mads Albertsen \email{MadsAlbertsen85@@gmail.com}
 
 amp_venn <- function(data, 

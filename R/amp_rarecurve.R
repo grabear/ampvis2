@@ -4,12 +4,13 @@
 #'
 #' @usage amp_rarecurve(data)
 #'
-#' @param data (\emph{required}) Data list as loaded with \code{amp_load()}.
+#' @param data (\emph{required}) Data list as loaded with \code{\link{amp_load}}.
 #' @param stepsize Step size for the curves. Lower is prettier but takes more time to generate. (\emph{default:} \code{1000})
 #' @param color_by Color curves by a variable in the metadata. 
 #' 
 #' @export
 #' @import dplyr
+#' @import vegan
 #' @import ggplot2
 #' 
 #' @return A ggplot2 object.
@@ -20,7 +21,7 @@
 #' #Rarecurve
 #' amp_rarecurve(AalborgWWTPs)
 #' 
-#' @author Kasper Skytte Andersen \email{kasperskytteandersen@gmail.com}
+#' @author Kasper Skytte Andersen \email{kasperskytteandersen@@gmail.com}
 #' @author Mads Albertsen \email{MadsAlbertsen85@@gmail.com}
 
 
@@ -32,9 +33,13 @@ amp_rarecurve <- function (data,
   if(class(data) != "ampvis2")
     stop("The provided data is not in ampvis2 format. Use amp_load() to load your data before using ampvis functions. (Or class(data) <- \"ampvis2\", if you know what you are doing.)")
   
+  maxreads <- max(colSums(data$abund))
+  if(maxreads < stepsize) {
+    stop("\"stepsize\" too high, maximum number of reads in any sample is: ", maxreads)
+  }
+  
   abund <- data[["abund"]] %>% as.matrix() %>% t()
   metadata <- data[["metadata"]]
-  colnames(metadata)[1] <- "SampleID"
 
   if (!identical(all.equal(abund, round(abund)), TRUE)) stop("Function accepts only integers (counts)")
 
@@ -45,7 +50,7 @@ amp_rarecurve <- function (data,
                              n <- seq(1, tot[i], by = stepsize)
                              if (n[length(n)] != tot[i]) 
                              n <- c(n, tot[i])
-                             drop(rarefy(abund[i, ], n))
+                             drop(vegan::rarefy(abund[i, ], n))
                              }
                 )
   
@@ -59,10 +64,12 @@ amp_rarecurve <- function (data,
     df <- rbind.data.frame(df, tdf)
   }
   
-  dfm <- merge(metadata, df, by = "SampleID")
+  metadata_col1name <- colnames(metadata)[1]
+  colnames(df)[which(colnames(df) == "SampleID")] <- metadata_col1name
+  dfm <- merge(metadata, df, by = metadata_col1name)
   
   ## Plot the data
-  p <- ggplot(dfm, aes_string(x = "Reads", y = "Species", group = "SampleID", color = color_by)) +
+  p <- ggplot(dfm, aes_string(x = "Reads", y = "Species", group = metadata_col1name, color = color_by)) +
     geom_line() +
     theme_classic() +
     xlab("Sequencing depth (reads)") +
