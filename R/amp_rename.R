@@ -22,8 +22,13 @@
 #' @author Kasper Skytte Andersen \email{kasperskytteandersen@@gmail.com}
 #' @author Mads Albertsen \email{MadsAlbertsen85@@gmail.com}
 
-amp_rename <- function(data, tax_class = NULL, tax_empty = "best", tax_level = "Genus"){
-  
+amp_rename <- function(data, tax_class = NULL, tax_empty = "best", tax_level = "Genus", tax_string_type = "greengenes"){
+tax_string <- c()
+  if (tax_string_type == "greengenes"){
+    tax_string <- c(Kingdom = "k__", Phylum = "p__", Class = "c__", Order = "o__", Family = "f__", Genus = "g__", Species = "s__")
+  } else if (tax_string_type == "silva"){
+    tax_string <- c(Kingdom = "D_0__", Phylum = "D_1__", Class = "D_2__", Order = "D_3__", Family = "D_4__", Genus = "D_5__", Species = "D_6__")
+  }
   tax = data[["tax"]]
   
   ## First make sure that all entries are strings
@@ -41,13 +46,12 @@ amp_rename <- function(data, tax_class = NULL, tax_empty = "best", tax_level = "
   }
   
   ## Remove the underscore classifier from the data  
-  tax$Kingdom <- gsub("^k_*", "", tax$Kingdom)
-  tax$Phylum <- gsub("^p_*", "", tax$Phylum)
-  tax$Phylum <- gsub("^c_*", "", tax$Phylum)
-  tax$Class <- gsub("^c_*", "", tax$Class)
-  tax$Order <- gsub("^o_*", "", tax$Order)
-  tax$Family <- gsub("^f_*", "", tax$Family)
-  tax$Genus <- gsub("^g_*", "", tax$Genus)
+  tax$Kingdom <- gsub(sprintf("^%s*", tax_string[["Kingdom"]]), "", tax$Kingdom)
+  tax$Phylum <- gsub(sprintf("^%s*", tax_string[["Phylum"]]), "", tax$Phylum)
+  tax$Class <- gsub(sprintf("^%s*", tax_string[["Class"]]), "", tax$Class)
+  tax$Order <- gsub(sprintf("^%s*", tax_string[["Order"]]), "", tax$Order)
+  tax$Family <- gsub(sprintf("^%s*", tax_string[["Family"]]), "", tax$Family)
+  tax$Genus <- gsub(sprintf("^%s*", tax_string[["Genus"]]), "", tax$Genus)
   tax$Kingdom <- gsub("uncultured", "", tax$Kingdom)
   tax$Phylum <- gsub("uncultured", "", tax$Phylum)
   tax$Class <- gsub("uncultured", "", tax$Class)
@@ -57,7 +61,7 @@ amp_rename <- function(data, tax_class = NULL, tax_empty = "best", tax_level = "
   
   ## Check if there is a species level otherwise add it for consistency
   if (!is.null(tax$Species)){
-    tax$Species <- gsub("^s_*", "", tax$Species)
+    tax$Species <- gsub(sprintf("^%s*", tax_string[["Species"]]), "", tax$Species)
   } else {
     tax$Species <- ""
   }
@@ -80,12 +84,12 @@ amp_rename <- function(data, tax_class = NULL, tax_empty = "best", tax_level = "
   rn <- rownames(tax) #damn rownames are silently dropped by mutate()
   if(tax_empty == "best"){
     tax <- mutate(tax, Kingdom, Kingdom = ifelse(Kingdom == "", "Unclassified", Kingdom)) %>%
-      mutate(Phylum, Phylum = ifelse(Phylum == "", paste("k__", Kingdom, "_", rownames(tax), sep = ""), Phylum)) %>%
-      mutate(Class, Class = ifelse(Class == "", ifelse(grepl("__", Phylum), Phylum, paste("c__", Phylum, "_", rownames(tax), sep = "")), Class)) %>%
-      mutate(Order, Order = ifelse(Order == "", ifelse(grepl("__", Class), Class, paste("c__", Class, "_", rownames(tax), sep = "")), Order)) %>%
-      mutate(Family, Family = ifelse(Family == "", ifelse(grepl("__", Order), Order, paste("o__", Order, "_", rownames(tax), sep = "")), Family)) %>%
-      mutate(Genus, Genus = ifelse(Genus == "", ifelse(grepl("__", Family), Family, paste("f__", Family, "_", rownames(tax), sep = "")), Genus)) %>%
-      mutate(Species, Species = ifelse(Species == "", ifelse(grepl("__", Genus), Genus, paste("g__", Genus, "_", rownames(tax), sep = "")), Species))
+      mutate(Phylum, Phylum = ifelse(Phylum == "", paste(sprintf("%s", tax_string[["Kingdom"]]), Kingdom, "_", rownames(tax), sep = ""), Phylum)) %>%
+      mutate(Class, Class = ifelse(Class == "", ifelse(grepl("__", Phylum), Phylum, paste(sprintf("%s", tax_string[["Phylum"]]), Phylum, "_", rownames(tax), sep = "")), Class)) %>%
+      mutate(Order, Order = ifelse(Order == "", ifelse(grepl("__", Class), Class, paste(sprintf("%s", tax_string[["Class"]]), Class, "_", rownames(tax), sep = "")), Order)) %>%
+      mutate(Family, Family = ifelse(Family == "", ifelse(grepl("__", Order), Order, paste(sprintf("%s", tax_string[["Order"]]), Order, "_", rownames(tax), sep = "")), Family)) %>%
+      mutate(Genus, Genus = ifelse(Genus == "", ifelse(grepl("__", Family), Family, paste(sprintf("%s", tax_string[["Family"]]), Family, "_", rownames(tax), sep = "")), Genus)) %>%
+      mutate(Species, Species = ifelse(Species == "", ifelse(grepl("__", Genus), Genus, paste(sprintf("%s", tax_string[["Genus"]]), Genus, "_", rownames(tax), sep = "")), Species))
   }
   rownames(tax) <- rn
   
